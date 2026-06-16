@@ -242,8 +242,8 @@ async function uploadFile() {
 
     const data = await res.json();
 
-    if (data.error) {
-      alert(data.error);
+    if (!res.ok || data.error) {
+      alert(data.error || "Upload failed");
       status.innerText = "";
       return;
     }
@@ -252,6 +252,7 @@ async function uploadFile() {
     showResult(data.qr, data.url);
 
   } catch (error) {
+    console.error("Upload Error:", error);
     status.innerText = "";
     alert("Upload failed. Please try again.");
   }
@@ -281,10 +282,15 @@ async function generateUrlQR() {
       body: JSON.stringify({ url })
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error("Server did not return JSON");
+    }
 
-    if (data.error) {
-      alert(data.error);
+    if (!res.ok || data.error) {
+      alert(data.error || "QR generation failed");
       status.innerText = "";
       return;
     }
@@ -293,8 +299,9 @@ async function generateUrlQR() {
     showResult(data.qr, data.url);
 
   } catch (error) {
+    console.error("URL QR Error:", error);
     status.innerText = "";
-    alert("QR generation failed.");
+    alert("Server error. Please check Render logs.");
   }
 }
 
@@ -312,12 +319,16 @@ function showResult(qr, url) {
 }
 
 function downloadQR() {
+  if (!currentQR) {
+    alert("Please generate QR first");
+    return;
+  }
+
   const a = document.createElement("a");
   a.href = currentQR;
   a.download = "qr-code.png";
   a.click();
 }
 </script>
-
 </body>
 </html>
