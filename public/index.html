@@ -1,101 +1,265 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Generator</title>
+
   <style>
-    body{
-      font-family:Arial;
-      background:#f5f5f5;
-      padding:40px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    .box{
-      max-width:550px;
-      margin:auto;
-      background:white;
-      padding:25px;
-      border-radius:15px;
-      box-shadow:0 0 20px rgba(0,0,0,0.1);
+    body {
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f8f8f8, #ffecec);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #111;
     }
 
-    input,button{
-      width:100%;
-      padding:12px;
-      margin-top:12px;
-      box-sizing:border-box;
+    .wrapper {
+      width: 100%;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
     }
 
-    button{
-      background:#111;
-      color:white;
-      border:0;
-      border-radius:8px;
-      cursor:pointer;
+    .card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.08);
     }
 
-    img{
-      max-width:250px;
-      margin-top:20px;
+    .title {
+      grid-column: 1 / -1;
+      text-align: center;
+      margin-bottom: 5px;
     }
 
-    a{
-      display:block;
-      margin-top:15px;
-      word-break:break-all;
+    .title h1 {
+      font-size: 34px;
+      color: #111;
     }
 
-    hr{
-      margin:25px 0;
+    .title span {
+      color: #ED3538;
     }
 
-    h2{
-      margin-bottom:5px;
+    .title p {
+      margin-top: 8px;
+      color: #666;
+      font-size: 15px;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    .desc {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 14px;
+    }
+
+    input:focus {
+      border-color: #ED3538;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #ED3538;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #c9282b;
+      transform: translateY(-1px);
+    }
+
+    .upload-box {
+      border: 2px dashed #ED3538;
+      border-radius: 16px;
+      padding: 30px 20px;
+      text-align: center;
+      background: #fff8f8;
+      margin-bottom: 15px;
+    }
+
+    .upload-box input {
+      border: none;
+      background: transparent;
+      margin-bottom: 0;
+    }
+
+    #result {
+      grid-column: 1 / -1;
+      display: none;
+      background: #fff;
+      border-radius: 22px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    }
+
+    #result.show {
+      display: block;
+    }
+
+    #result img {
+      width: 230px;
+      max-width: 100%;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 16px;
+    }
+
+    .qr-link {
+      display: block;
+      margin: 18px auto;
+      color: #ED3538;
+      word-break: break-all;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .download-btn {
+      max-width: 220px;
+      margin: auto;
+      background: #111;
+    }
+
+    .download-btn:hover {
+      background: #333;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    @media (max-width: 768px) {
+      .wrapper {
+        grid-template-columns: 1fr;
+      }
+
+      .title h1 {
+        font-size: 28px;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<div class="box">
-  <h1>QR Generator</h1>
+<div class="wrapper">
 
-  <hr>
+  <div class="title">
+    <h1>Smart <span>QR Generator</span></h1>
+    <p>Upload files or generate QR codes from any link</p>
+  </div>
 
-  <h2>Upload File / Image</h2>
-  <input type="file" id="fileInput">
-  <button onclick="uploadFile()">Upload & Generate QR</button>
+  <div class="card">
+    <h2>Upload File / Image</h2>
+    <p class="desc">Upload image, PDF, or document. QR will open the uploaded file directly.</p>
 
-  <hr>
+    <div class="upload-box">
+      <input type="file" id="fileInput">
+    </div>
 
-  <h2>Generate QR from URL</h2>
-  <input type="text" id="urlInput" placeholder="https://example.com">
-  <button onclick="generateUrlQR()">Generate URL QR</button>
+    <button onclick="uploadFile()">Upload & Generate QR</button>
+    <div class="status" id="fileStatus"></div>
+  </div>
 
-  <div id="result"></div>
+  <div class="card">
+    <h2>Generate QR from URL</h2>
+    <p class="desc">Paste any website, Google Drive link, WhatsApp link, or custom URL.</p>
+
+    <input type="text" id="urlInput" placeholder="https://example.com">
+    <button onclick="generateUrlQR()">Generate URL QR</button>
+    <div class="status" id="urlStatus"></div>
+  </div>
+
+  <div id="result">
+    <h2>Your QR Code is Ready</h2>
+    <img id="qrImage" src="" alt="QR Code">
+    <a id="qrLink" class="qr-link" href="#" target="_blank"></a>
+    <button class="download-btn" onclick="downloadQR()">Download QR</button>
+  </div>
+
 </div>
 
 <script>
+let currentQR = "";
+
 async function uploadFile() {
   const file = document.getElementById("fileInput").files[0];
+  const status = document.getElementById("fileStatus");
 
   if (!file) {
     alert("Please select a file");
     return;
   }
 
+  status.innerText = "Uploading file...";
+
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("/upload", {
-    method: "POST",
-    body: formData
-  });
+  try {
+    const res = await fetch("/upload", {
+      method: "POST",
+      body: formData
+    });
 
-  const data = await res.json();
-  showResult(data.qr, data.url);
+    const data = await res.json();
+
+    if (data.error) {
+      alert(data.error);
+      status.innerText = "";
+      return;
+    }
+
+    status.innerText = "File uploaded successfully";
+    showResult(data.qr, data.url);
+
+  } catch (error) {
+    status.innerText = "";
+    alert("Upload failed. Please try again.");
+  }
 }
 
 async function generateUrlQR() {
   let url = document.getElementById("urlInput").value.trim();
+  const status = document.getElementById("urlStatus");
 
   if (!url) {
     alert("Please enter URL");
@@ -106,30 +270,50 @@ async function generateUrlQR() {
     url = "https://" + url;
   }
 
-  const res = await fetch("/generate-url-qr", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ url })
-  });
+  status.innerText = "Generating QR...";
 
-  const data = await res.json();
-  showResult(data.qr, data.url);
+  try {
+    const res = await fetch("/generate-url-qr", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ url })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      alert(data.error);
+      status.innerText = "";
+      return;
+    }
+
+    status.innerText = "QR generated successfully";
+    showResult(data.qr, data.url);
+
+  } catch (error) {
+    status.innerText = "";
+    alert("QR generation failed.");
+  }
 }
 
 function showResult(qr, url) {
-  document.getElementById("result").innerHTML = `
-    <img src="${qr}" alt="QR Code">
-    <a href="${url}" target="_blank">${url}</a>
-    <br>
-    <button onclick="downloadQR('${qr}')">Download QR</button>
-  `;
+  currentQR = qr;
+
+  document.getElementById("qrImage").src = qr;
+  document.getElementById("qrLink").href = url;
+  document.getElementById("qrLink").innerText = url;
+  document.getElementById("result").classList.add("show");
+
+  document.getElementById("result").scrollIntoView({
+    behavior: "smooth"
+  });
 }
 
-function downloadQR(qr) {
+function downloadQR() {
   const a = document.createElement("a");
-  a.href = qr;
+  a.href = currentQR;
   a.download = "qr-code.png";
   a.click();
 }
