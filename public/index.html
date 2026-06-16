@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Public QR File Upload</title>
+  <style>
+    body{font-family:Arial;background:#f5f5f5;padding:40px}
+    .box{max-width:500px;margin:auto;background:white;padding:25px;border-radius:15px}
+    input,button{width:100%;padding:12px;margin-top:12px}
+    button{background:#111;color:white;border:0;border-radius:8px;cursor:pointer}
+    img{max-width:250px;margin-top:20px}
+    a{display:block;margin-top:15px;word-break:break-all}
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Upload File & Generate Public QR</h2>
+
+  <input type="file" id="fileInput">
+  <button onclick="uploadFile()">Upload & Generate QR</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+async function uploadFile() {
+  const file = document.getElementById("fileInput").files[0];
+
+  if (!file) {
+    alert("Please select file");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/upload", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+
+  document.getElementById("result").innerHTML = `
+    <img src="${data.qr}" alt="QR Code">
+    <a href="${data.url}" target="_blank">${data.url}</a>
+    <br>
+    <button onclick="downloadQR('${data.qr}')">Download QR</button>
+  `;
+}
+
+function downloadQR(qr) {
+  const a = document.createElement("a");
+  a.href = qr;
+  a.download = "qr-code.png";
+  a.click();
+}
+</script>
+
+</body>
+</html>
